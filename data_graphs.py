@@ -128,9 +128,9 @@ def get_job_completeness(data, filters, thresholds):
         ],
     }).to_dict()['Run Time']
 
-    distribution = data.groupby("Step Name").agg({
-        "Run Time": lambda x: np.percentile(x, 99)
-    }).to_dict()['Run Time'][filters["Step Name"]]
+    # distribution = data.groupby("Step Name").agg({
+    #     "Run Time": lambda x: np.percentile(x, 99)
+    # }).to_dict()['Run Time'][filters["Step Name"]]
 
     return completeness, distribution, len(data)
 
@@ -172,9 +172,9 @@ def plot_pipelines(data, thresholds):
                 )
                 step_stats = {**step_stats, **completeness}
                 step_stats["Count"] = count
-                # step_stats["2-std"] = distribution['mean'] + \
-                #     2 * distribution['std']
-                step_stats["2-std"] = distribution
+                step_stats["2-std"] = distribution['mean'] + \
+                    2 * distribution['std']
+                # step_stats["2-std"] = distribution
 
                 print(f'Done {technique}-{pipeline}-{step}')
 
@@ -220,7 +220,7 @@ def complete_jobs(data, threshold):
     total = data['Count'].sum()
     percentage = abs(100 * above_th / total)
     # print(f'{threshold} -> {above_th} / {total} ')
-    return f'{round(percentage, 2)} %'
+    return f'{round(percentage, 2)} % - {threshold} hours'
 
 
 def plot_heatmap(data):
@@ -277,7 +277,8 @@ def plot_heatmap(data):
         percentage = complete_jobs(stats_sorted, threshold)
 
         plt.axvline(index, color="black", linestyle='dashed')
-        plt.text(index - 0.2, -3.1, percentage, rotation=90)
+        plt.text(index - 0.2, -0.5, percentage,
+                 rotation=90, verticalalignment='bottom')
 
     # plt.subplots_adjust(left=3)
     plt.savefig(join(OUTPUT, 'heatmap.png'))
